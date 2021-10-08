@@ -1,0 +1,96 @@
+https://bitbucket.org/symphonydevelopers/bma/src/BMA-60957-setter/src/app/fiveASideShowDown/components/fiveASideEntry/fiveASideEntrySummary/fiveaside-entry-summary.component.spec.ts
+
+https://stackoverflow.com/questions/22382453/java-8-streams-flatmap-method-example
+https://stackabuse.com/spring-reactor-tutorial/ 
+https://github.com/StackAbuse/spring-reactive/tree/master/reactive-mongodb 
+https://github.com/StackAbuse/spring-reactive/tree/master/reactive-producer-consumer
+https://github.com/StackAbuse/spring-reactive/tree/master/reactive-web 
+
+https://www.freecodecamp.org/news/here-are-some-super-secret-vs-code-hacks-to-boost-your-productivity-20d30197ac76/ 
+
+https://github.com/angular/angular-cli/issues/20891  - Angular 12.0.1 builds multiple times on startup and on file changes
+https://github.com/angular/angular-cli/issues/20792  - Buildtime increased by 50% in v12
+https://github.com/angular/angular/issues/42100  - ng serve and ng build is very slow
+https://nikeshshetty.medium.com/5-common-mistakes-of-webflux-novices-f8eda0cd6291  
+https://github.com/angular/protractor/blob/master/spec/withLoginConf.js 
+https://stackoverflow.com/questions/49698640/flatmap-mergemap-switchmap-and-concatmap-in-rxjs 
+https://www.forbes.com/sites/forbesdigitalgroup/2019/05/14/improve-your-angular-jasmine-unit-test-speeds-by-500/?sh=3f48eb624163  
+https://www.confluent.io/blog/hands-free-kafka-replication-a-lesson-in-operational-simplicity/  
+https://www.tabnine.com/code/java/methods/java.util.concurrent.CompletableFuture/thenApplyAsync  
+https://www.tabnine.com/code/java/methods/java.util.concurrent.CompletableFuture/runAsync 
+https://kevcodez.de/posts/2015-07-25-optimistic-vs-pessimistic-locking-and-transactions/  
+
+https://www.baeldung.com/java-mono-list-to-flux 
+https://www.tabnine.com/code/java/methods/reactor.core.publisher.Mono/flatMapMany 
+https://www.baeldung.com/java-performance-mapping-frameworks  
+https://stackoverflow.com/questions/51235724/how-to-save-object-to-reactive-repository-inside-flux   - 
+https://stackoverflow.com/questions/47654826/selma-v-s-mapstruct-v-s-model-mapper-which-one-to-chose-as-java-mapping-framewor
+	@Builder //lombok annotation to create Builder class
+    @Data //lombok annotation to create getters & setters
+    @AllArgsConstructor //required for @Builder
+    public class ProductDTO  {
+
+We can use 'flatMap' in combination with the 'AbstractMap.SimpleEntry' class to flatten a hierarchical data-structure to a set of Key/Value pairs..." );
+.flatMap(fullName -> Pattern.compile(" ").splitAsStream(fullName)
+
+
+https://github.com/srmippili/learnings.git
+
+    Template.service.ts
+	Cms.service.ts
+	Racing events component.ts
+    Inka chala unnayi
+    Command.service.ts 
+
+Array.from(document.getElementsByTagName('script')).filter(e => e.outerHTML.indexOf('/alloy.js')>0).length>0
+
+R2dbcEntityTemplate r2dbcEntityTemplate = new R2dbcEntityTemplate(connectionFactory);
+r2dbcEntityTemplate.getDatabaseClient().sql("CALL saveCMSConfigAndGenerateChoiceCombo(:campaign)")
+        .bind("campaign",new ObjectMapper().writeValueAsString(cmsConfig.getCampaignDto()))
+        .fetch().first().subscribe();
+		
+
+99999999999999999 
+
+https://gvcgroup.service-now.com/gvcsp/?id=gvc_sc_home
+https://sonarcloud.io/dashboard?branch=BMA-56892-Buttons&id=OXYGEN 
+https://disme.bwin.corp/out/out.ViewDocument.php?documentid=1796
+https://disme.beta.env.works/out/out.ChangesStress.php?&page=1&order=date:DESC
+https://lcg.git.bwinparty.corp/agulati/coralsports
+https://bitbucket.org/symphonydevelopers/bma/src/BMA-53547/
+http://cms.bwin.func/sitecore/login?sc_lang=en
+https://jenkins-vie.coral.co.uk
+http://atvd1wq3lb010/DirsAndFiles.aspx
+
+https://coralracing-my.sharepoint.com/personal/sriramamurthy_ippili_ivycomptech_com/_layouts/OneNote.aspx?id=%2Fpersonal%2Fsriramamurthy_ippili_ivycomptech_com%2FDocuments%2FSriramamurthy%20%40%20GVC%20Group
+https://coralracing-my.sharepoint.com/personal/sriramamurthy_ippili_ivycomptech_com/_layouts/15/onedrive.aspx
+
+One-click Image Reader (OCR)
+Offered by: oren.chan
+https://chrome.google.com/webstore/detail/%E4%B8%80%E9%94%AE%E8%AF%BB%E5%9B%BEocr/agepkkdokhlaoiaenedmjbfnblfdiboc 
+Voice In Voice Typing
+Offered by: https://dictanote.co
+https://chrome.google.com/webstore/detail/voice-in-voice-typing/pjnefijmagpdjfhhkpljicbbpicelgko
+https://chrome.google.com/webstore/detail/tab-titler-20/aolhnnheicpbohggibkibdmfdkmkaocc
+https://chrome.google.com/webstore/detail/paint-tool-marker-for-chr/ghjhkcjbojpgiebboplfidlbapdpgihn
+https://chrome.google.com/webstore/detail/page-marker/jfiihjeimjpkpoaekpdpllpaeichkiod
+https://mybrowseraddon.com/magnifying-glass.html
+https://add0n.com/ocr.html 
+https://chrome.google.com/webstore/detail/copyfish-%F0%9F%90%9F-free-ocr-soft/eenjdnjldapjajjofmldgmkjaienebbj 
+https://chrome.google.com/webstore/detail/bookmark-it/adhfhfpebeloakommdgicanmhfbeifnb 
+https://chrome.google.com/webstore/detail/grepper/amaaokahonnfjjemodnpmeenfpnnbkco
+
+ 
+0049267041   @CBzz123
+Employee-Id: E10012759
+Date of Joining: 17/04/2020
+UAN - 100933336814
+AAACH0997E – PAN of the lender
+ AP/HYD/1285921/000/11694
+@bczz12345    - jira pwd
+Testtrail – my-regularPwd+@
+
+
+
+99999999999 
+*.gvcgroup.corp;*.Bwin.*;*.cms.bwin;*.bwinparty.com;*.bwinparty.corp;*.bpty;*.partypoker.com;*.partypoker.es;*.partycasino.*;*.premium.*;*.partypremium.*;*.partygaming.com;*.partygaming.local;*.sportingbet.*;*.internal.sportingbet.ro;*.finadmin.sportingbet.com;mal-xenwebsvr01.sbet-emea.ads;*.betboo.*;*.coral.local;*.icepor.com;*.itsfogo.com;*.ivycomptech.co.in;*.Vistabet.*;webpool02.is.icepor.com;*.brands.local;*.dimensiondata.com;admin.kalixa.com.*;*.csmng.intranet;www.csmng.intranet;*.igmg;wiki.openbet.com;gvcisr.int;*.wms.com;*.iglobalmedia.com;bvservices-stage.webdollar.com;services.bverified.com;gi1p1udoms001.prod.gi01.bpty;nj0p1udora999.prod.nj01.bpty;gi1p1udoms001.prod.gi01.bpty;oem.mgmt.nj02.bpty;baf01.im.cozygames.com;preprod.*;preprod-*;dev.*;*.env.works;*.e7new.com;qa2.*;qa5.*;test-*;test2.*;*.test2;*.apz.unix;*.dbz.unix;repo.nt.lan;wss.plc-gc.com;wss://bwin.spingames.net;kibana.*;my.gvcgroup.com;meet.gvcgroup.com;lyncdiscoverinternal.gvcgroup.com;webpool01.is.icepor.com;gi2m1xiidm001.gi02.bpty;gi2m1xiidm002.gi02.bpty;help.nj.playmgm.com.cms.bwin.prod;preprod-m-lcm.ladbrokes.com;tools.ladbrokes.com;tst1-mobile-lcm.ladbrokes.com;tst2-mobile-lcm.ladbrokes.com;tst2-sports-lcm.ladbrokes.com;tst2-feeds-lcm.ladbrokes.com;stg-feeds-lcm.ladbrokes.com;feeds-obr4-tst2.ladbrokes.com;feeds-obr4-tst2-ext.ladbrokes.com;feeds-obr4-stg.ladbrokes.com;portal-admin-AccountOne-test.ladbrokes.com;portal-admin-accountone-stg.ladbrokes.com;feeds-obr2-stg-ext.coral.co.uk;jira.ladbrokes.co.uk;obbackoffice-stg2.gib1.egalacoral.com;*.betmgm.com
