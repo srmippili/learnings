@@ -1,6 +1,26 @@
 https://bitbucket.org/symphonydevelopers/bma/src/BMA-60957-setter/src/app/fiveASideShowDown/components/fiveASideEntry/fiveASideEntrySummary/fiveaside-entry-summary.component.spec.ts
 
-https://stackoverflow.com/questions/22382453/java-8-streams-flatmap-method-example
+https://github.com/reactor/reactor-netty/issues/1655 -  eventLoop group , eventloop , useEpoll, OverflowStrategy.LATEST)  - 
+https://docs.mongodb.com/manual/reference/operator/projection/elemMatch/ 
+https://hantsy.medium.com/update-accessing-rdbms-with-spring-data-r2dbc-a4d118b1669d  
+https://programmerall.com/article/53552227209/  - also r2dbctemplate usage 
+
+
+https://stackoverflow.com/questions/47654826/selma-v-s-mapstruct-v-s-model-mapper-which-one-to-chose-as-java-mapping-framewor
+
+
++@ExtendWith(MockitoExtension.class)
+
+https://docs.mongodb.com/manual/core/index-compound/  
+https://itsallbinary.com/reactor-basics-with-example-backpressure-overflow-drop-error-latest-ignore-buffer-good-for-beginners/  
+https://itsallbinary.com/reactor-basics-with-example-create-subscribe-synchronous-async-parallel-backpressure-non-blocking-good-for-beginners/ 
+https://netbasal.com/rxjs-six-operators-that-you-must-know-5ed3b6e238a0 
+
+
+https://github.com/spockframework/spock-example
+https://spockframework.org/spock/docs/2.0/index.html
+
+https://stackoverflow.com/questions/22382453/java-8-streams-flatmap-method-example - stream .flatMap(Collection::stream);
 https://stackabuse.com/spring-reactor-tutorial/ 
 https://github.com/StackAbuse/spring-reactive/tree/master/reactive-mongodb 
 https://github.com/StackAbuse/spring-reactive/tree/master/reactive-producer-consumer
@@ -39,7 +59,6 @@ https://github.com/srmippili/learnings.git
     Template.service.ts
 	Cms.service.ts
 	Racing events component.ts
-    Inka chala unnayi
     Command.service.ts 
 
 Array.from(document.getElementsByTagName('script')).filter(e => e.outerHTML.indexOf('/alloy.js')>0).length>0
