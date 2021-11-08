@@ -1,3 +1,20 @@
+
+chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security
+
+camunda - https://www.youtube.com/playlist?list=PLJG25HlmvsOUnCziyJBWzcNh7RM5quTmv 
+
+https://www.hindustantimes.com/more-lifestyle/let-the-stars-planets-guide-you-in-staying-healthy/story-SJjC9TMPCUWppi7tXKeNgK.html 
+(https://bit.ly/3jIdLmN)
+Hippocrates, the ancient Greek physician once said, “A physician without the knowledge of astrology has no right to call himself a physician.”
+
+https://www.troyhunt.com/locking-down-your-website-scripts-with-csp-hashes-nonces-and-report-uri/
+https://stackoverflow.com/questions/50875710/spring-data-mongodb-building-dynamic-query
+https://stackoverflow.com/questions/48064539/query-for-dynamic-fields-in-mongodb
+https://github.com/GoogleChrome/chrome-extensions-samples - - vs 
+https://src.chromium.org/viewvc/chrome/trunk/src/chrome/common/extensions/docs/examples
+http://www.dre.vanderbilt.edu/~schmidt/android/android-4.0/external/chromium/chrome/common/extensions 
+https://blog.shahednasser.com/chrome-extension-tutorial-migrating-to-manifest-v3-from-v2/
+
 https://bitbucket.org/symphonydevelopers/bma/src/BMA-60957-setter/src/app/fiveASideShowDown/components/fiveASideEntry/fiveASideEntrySummary/fiveaside-entry-summary.component.spec.ts
 
 https://github.com/reactor/reactor-netty/issues/1655 -  eventLoop group , eventloop , useEpoll, OverflowStrategy.LATEST)  - 
