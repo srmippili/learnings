@@ -1,3 +1,13 @@
+https://ess.excelityglobal.com/index.jsp 
+0049267041   @CBzz123
+Employee-Id: E10012759
+Date of Joining: 17/04/2020
+UAN - 100933336814
+AAACH0997E – PAN of the lender
+ PF No.
+ AP/HYD/1285921/000/11694
+
+
 
 chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security
 
