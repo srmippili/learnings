@@ -1,0 +1,80 @@
+package com.mycompany.runcmdtest;
+
+import org.redisson.Redisson;
+import org.redisson.api.LocalCachedMapOptions;
+import org.redisson.api.RLocalCachedMap;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+
+/**
+ *
+ * @author PC
+ */
+public class redissonUseLocalCached {
+
+    public static RedissonClient REDISSON_CLIENT = null;
+    public static LocalCachedMapOptions options = LocalCachedMapOptions.defaults().cacheSize(0).timeToLive(100000)
+            .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.NONE)
+            .syncStrategy(LocalCachedMapOptions.SyncStrategy.NONE)
+            .reconnectionStrategy(LocalCachedMapOptions.ReconnectionStrategy.NONE);
+
+    public static void main(String[] args) throws InterruptedException {
+        Config config = new Config();
+        config.useSingleServer()
+                .setAddress("redis://172.30.4.202:6379")
+                .setIdleConnectionTimeout(10000)
+                .setPingTimeout(1000)
+                .setConnectTimeout(10000)
+                .setTimeout(3000)
+                .setRetryAttempts(3)
+                .setRetryInterval(1500)
+                .setReconnectionTimeout(3000)
+                .setFailedAttempts(3)
+                .setSubscriptionsPerConnection(5)
+                .setSubscriptionConnectionMinimumIdleSize(1)
+                .setSubscriptionConnectionPoolSize(50)
+                .setConnectionMinimumIdleSize(10)
+                .setDnsMonitoring(false)
+                .setDnsMonitoringInterval(5000)
+                .setConnectionPoolSize(200)
+                .setDatabase(4);
+
+        REDISSON_CLIENT = Redisson.create(config);
+        System.out.println("INIT 100k HASHMAP");
+        initLocalHashMapForBenchmark();
+
+        System.out.println("Test start");
+        long startTime = System.nanoTime();
+
+        for (int i = 0; i < 10000; i++) {
+            getLocalHashByKey("test100", "key100");
+        }
+
+        long endTime = System.nanoTime();
+        long totalTime = endTime - startTime;
+        double seconds = (double) totalTime / 1000000000.0;
+        System.out.println(seconds);
+        System.out.println("-----------------------------------------complete-----------------------------------------");
+        System.out.println("Test end");
+
+    }
+
+    //hash map
+    public static String getLocalHashByKey(String strKey, String strField) {
+        if (REDISSON_CLIENT != null) {
+            RLocalCachedMap<String, String> rLocalMap = REDISSON_CLIENT.getLocalCachedMap(strKey, options);
+            return (rLocalMap.isExists() ? rLocalMap.get(strField) : "");
+        }
+        return "";
+    }
+
+    //hash map
+    public static void initLocalHashMapForBenchmark() {
+        if (REDISSON_CLIENT != null) {
+            for (int i = 0; i < 100000; i++) {
+                RLocalCachedMap<String, String> rLocalMap = REDISSON_CLIENT.getLocalCachedMap("test" + i, options);
+                rLocalMap.put("key" + i, "val");
+            }
+        }
+    }
+}

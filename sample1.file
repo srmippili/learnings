@@ -1,0 +1,1028 @@
+import { Observable, of, ReplaySubject, throwError } from 'rxjs';
+import { pubSubApi } from '@core/services/communication/pubsub/pubsub-api.constant';
+import { CmsService } from './cms.service';
+import environment from '@environment/oxygenEnvConfig';
+import { ISvgItem, ISystemConfig, IWidget } from '@core/services/cms/models';
+import { fakeAsync, tick } from '@angular/core/testing';
+import { CONNECT_PROMOTION_CATEGORY_ID } from '@core/services/cms/cms.constants';
+
+describe('@CmsService', () => {
+  const initialDataMock = {
+    systemConfiguration: {systemConfiguration: {}},
+    modularContent: {modularContent: {}},
+    navigationPoints: [{a: 1, b: 2}],
+    sportCategories: [{ categoryId: 1, sportName: 'category1' },
+    { categoryId: 2, sportName: 'category2' },
+    { categoryId: 3, sportName: 'greyhoundracing' },
+    { imageTitle: 'football', svgId: '#1'}],
+    svgSpriteContent: '<svg>'
+  } as any;
+
+  let service: CmsService,
+    pubSubService,
+    cmsToolsService,
+    deviceService,
+    httpClient,
+    coreToolsService,
+    storageService,
+    casinoLinkService,
+    nativeBridgeService,
+    userService,
+    cmsInitConfigPromise;
+
+  beforeEach(() => {
+    pubSubService = {
+      publish: jasmine.createSpy('publish'),
+      API: pubSubApi
+    };
+
+    cmsToolsService = {
+      processResult: jasmine.createSpy('processResult').and.returnValue([])
+    };
+
+    deviceService = {
+      strictViewType: 'mobile',
+      requestPlatform: 'mobile'
+    };
+
+    httpClient = {
+      get: jasmine.createSpy('get').and.returnValue(of(
+        {
+          body: []
+        }))
+    };
+
+    coreToolsService = {
+      deepClone: jasmine.createSpy('deepClone')
+    };
+
+    storageService = {
+      get: jasmine.createSpy('get')
+    };
+
+    casinoLinkService = {
+      filterGamingLinkForIOSWrapper: jasmine.createSpy('filterGamingLinkForIOSWrapper')
+    };
+
+    nativeBridgeService = {
+      isRemovingGamingEnabled: false
+    };
+
+    userService = {
+      currencySymbol: '$'
+    };
+
+    cmsInitConfigPromise = undefined;
+
+    service = new CmsService(
+      pubSubService,
+      cmsToolsService,
+      deviceService,
+      httpClient,
+      coreToolsService,
+      storageService,
+      casinoLinkService,
+      nativeBridgeService,
+      userService,
+      cmsInitConfigPromise
+    );
+
+    service['initialData$'] = new ReplaySubject<any>(1);
+    service['initialData$'].next(initialDataMock as any);
+    service['initialCmsDataPromise'] = undefined;
+  });
+
+  afterEach(() => {
+    service = null;
+  });
+
+  it('should create instance', () => {
+    expect(service).toBeDefined();
+    expect(service instanceof CmsService).toBeTruthy();
+  });
+
+  it('should call getStaticBlock()', () => {
+    service.getStaticBlock('contact-us');
+
+    expect(httpClient.get).toHaveBeenCalled();
+    expect(httpClient.get).toHaveBeenCalledWith(
+      `${ environment.CMS_ENDPOINT }/${ environment.brand }/static-block/contact-us`,
+      { observe: 'response', params: {} }
+    );
+  });
+
+  it('should call getSystemConfig() once', () => {
+    service['getInitialSystemConfig'] = jasmine.createSpy('getInitialSystemConfig').and
+      .returnValue(of(initialDataMock.systemConfiguration));
+    (<Observable<ISystemConfig>>service.getSystemConfig(true)).subscribe();
+
+    service.systemConfiguration = initialDataMock.systemConfiguration as any;
+
+    (<Observable<ISystemConfig>>service.getSystemConfig()).subscribe();
+
+    expect(service['getInitialSystemConfig']).toHaveBeenCalledTimes(1);
+  });
+
+  it('should return systemConfiguration', () => {
+    service['systemConfiguration'] = 'test' as any;
+
+    service.getSystemConfig().subscribe(data => {
+      expect(data as any).toEqual('test');
+    });
+  });
+
+  describe('@getFeatureConfig()', () => {
+    const preventCache = false;
+
+    beforeEach(() => {
+      service['getFeatureConfigByName'] = jasmine.createSpy('getFeatureConfigByName');
+      service.featureConfigMap = new Map as any;
+    });
+
+    it('should call getFeatureConfigByName() ', () => {
+      service.getFeatureConfig('football');
+      expect(service['getFeatureConfigByName']).toHaveBeenCalledWith('football');
+    });
+
+    it('should call getFeatureConfigByName() ', () => {
+      service.getFeatureConfig('football', preventCache);
+      expect(service['getFeatureConfigByName']).toHaveBeenCalledWith('football');
+    });
+
+    it('should not call getFeatureConfigByName() ', () => {
+      const successHandler = jasmine.createSpy('successHandler'),
+        errorHandler = jasmine.createSpy('errorHandler');
+      const featureConfigMock = {visible: true, showHeader: false};
+      service.featureConfigMap.set('football', of(featureConfigMock));
+      service.getFeatureConfig('football', preventCache).subscribe(successHandler, errorHandler);
+      expect(successHandler).toHaveBeenCalledWith(featureConfigMock);
+      expect(errorHandler).not.toHaveBeenCalled();
+      expect(service['getFeatureConfigByName']).not.toHaveBeenCalled();
+    });
+
+    it('should call getFeatureConfigByName() method when preventCache was passed', () => {
+      const successHandler = jasmine.createSpy('successHandler'),
+        errorHandler = jasmine.createSpy('errorHandler');
+      const featureConfigMock = {visible: true, showHeader: false};
+      service.featureConfigMap.set('football', of(featureConfigMock));
+      service['getFeatureConfigByName'] = jasmine.createSpy('getFeatureConfigByName').and.returnValue(of(featureConfigMock));
+
+      service.getFeatureConfig('football', true).subscribe(successHandler, errorHandler);
+
+      expect(successHandler).toHaveBeenCalledWith(featureConfigMock);
+      expect(errorHandler).not.toHaveBeenCalled();
+      expect(service['getFeatureConfigByName']).toHaveBeenCalled();
+    });
+
+    it('should not call getFeatureConfigByName() and not handle throwing error', () => {
+      const successHandler = jasmine.createSpy('successHandler'),
+        errorHandler = jasmine.createSpy('errorHandler');
+      service.featureConfigMap.set('football', throwError('error'));
+
+      service.getFeatureConfig('football', preventCache).subscribe(successHandler, errorHandler);
+
+      expect(successHandler).not.toHaveBeenCalled();
+      expect(errorHandler).toHaveBeenCalledWith('error');
+      expect(service['getFeatureConfigByName']).not.toHaveBeenCalled();
+    });
+
+    it('should call getFeatureConfigByName() with error handling', () => {
+      service['getFeatureConfigByName'] = jasmine.createSpy('getFeatureConfigByName').and.returnValue(throwError('error'));
+      service.getFeatureConfig('football', preventCache, true).subscribe((data) => {
+        expect(data).toEqual({});
+      });
+
+      expect(service['getFeatureConfigByName']).toHaveBeenCalledWith('football');
+    });
+
+    it('should not call getFeatureConfigByName() with error handling', () => {
+      const successHandler = jasmine.createSpy('successHandler'),
+        errorHandler = jasmine.createSpy('errorHandler');
+      service.featureConfigMap.set('football', throwError('error'));
+      service.getFeatureConfig('football', preventCache, true).subscribe(successHandler, errorHandler);
+
+      expect(service['getFeatureConfigByName']).not.toHaveBeenCalled();
+      expect(successHandler).toHaveBeenCalledWith({});
+      expect(errorHandler).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('@getCompetitions()', () => {
+    const competitions = { 'A-ZClassIDs': '', InitialClassIDs: '123' },
+      competitionsFootball = { 'A-ZClassIDs': '', InitialClassIDs: '456' },
+      competitionsBasketball = { 'A-ZClassIDs': '', InitialClassIDs: '789' };
+
+    beforeEach(() => {
+      service['systemConfiguration'] = {
+        Competitions: competitions,
+        CompetitionsFootball: competitionsFootball,
+        CompetitionsBasketball: competitionsBasketball
+      };
+    });
+
+    it('should return proper config for football sport', fakeAsync(() => {
+      service.getCompetitions('Football')
+        .subscribe(data => {
+          expect(data).toEqual(competitionsFootball);
+        });
+
+      tick();
+    }));
+
+    it('should return fallback config', fakeAsync(() => {
+      service.getCompetitions()
+        .subscribe(data => {
+          expect(data).toEqual(competitions);
+        });
+
+      tick();
+    }));
+  });
+
+  it('should call getData()', fakeAsync(() => {
+    const featureConfigMock = {visible: true, showHeader: false};
+    service['getData'] = jasmine.createSpy('getData').and.returnValue(of(featureConfigMock));
+    service['getFeatureConfigByName']('CompetitionsBasketball').subscribe();
+    tick();
+
+    expect(service['getData']).toHaveBeenCalledWith(`system-configurations/CompetitionsBasketball`);
+    })
+  );
+  describe('@getToggleStatus()', () => {
+    it('should return true if feature is enabled in CMS', fakeAsync(() => {
+      service['systemConfiguration'] = { FeatureToggle: { PromoSignposting: true } };
+      service.getToggleStatus('PromoSignposting')
+        .subscribe(toggleStatus => {
+          expect(toggleStatus).toBeTruthy();
+        });
+
+      tick();
+    }));
+  });
+
+  it('should call getCmsCountries()', () => {
+    service.getCmsCountries().subscribe();
+
+    expect(httpClient.get).toHaveBeenCalled();
+    expect(httpClient.get).toHaveBeenCalledWith(
+      `${ environment.CMS_ENDPOINT }/${ environment.brand }/countries-settings`,
+      { observe: 'response', params: {} }
+    );
+  });
+
+  it('should call getInitialSystemConfig()', () => {
+    service['getCmsInitData'] = jasmine.createSpy('getCmsInitData').and.returnValue(of(initialDataMock));
+    service.getInitialSystemConfig().subscribe();
+
+    expect(service['getCmsInitData']).toHaveBeenCalled();
+  });
+
+  it('should call triggerSystemConfigUpdate()', () => {
+    service['getSystemConfig'] = jasmine.createSpy('getSystemConfig').and.returnValue(of(initialDataMock.systemConfiguration));
+    service.triggerSystemConfigUpdate();
+
+    expect(service['getSystemConfig']).toHaveBeenCalledWith(true);
+    expect(pubSubService.publish).toHaveBeenCalledWith(pubSubApi.SYSTEM_CONFIG_UPDATED, [initialDataMock.systemConfiguration]);
+  });
+
+  it('should call getRibbonModule()', () => {
+    service['getCmsInitData'] = jasmine.createSpy('getCmsInitData').and.returnValue(of(initialDataMock));
+    service['filterScheduleTabs'] = jasmine.createSpy('getCmsInitData').and.returnValue(initialDataMock.modularContent);
+    service.getRibbonModule().subscribe((data) => {
+      expect(data).toEqual({ getRibbonModule: initialDataMock.modularContent});
+    });
+
+    expect(service['getCmsInitData']).toHaveBeenCalled();
+    expect(service['filterScheduleTabs']).toHaveBeenCalledWith(initialDataMock.modularContent);
+  });
+
+  it('should call getContactUs()', () => {
+    service.getContactUs().subscribe();
+
+    expect(httpClient.get).toHaveBeenCalled();
+    expect(httpClient.get).toHaveBeenCalledWith(
+      `${ environment.CMS_ENDPOINT }/${ environment.brand }/static-block/contact-us-en-us`,
+      { observe: 'response', params: {} }
+    );
+  });
+  it('should call extractInitialIcons()', () => {
+    service['getCmsInitData'] = jasmine.createSpy('getCmsInitData').and.returnValue(of(initialDataMock));
+    service.extractInitialIcons().subscribe(res => {
+      expect(service['getCmsInitData']).toHaveBeenCalled();
+      expect(res).toBe(initialDataMock.svgSpriteContent);
+    });
+  });
+
+  describe('getItemSvg', () => {
+    beforeEach(() => {
+      service['getMenuItems'] = jasmine.createSpy('getMenuItems').and.returnValue(of(initialDataMock.sportCategories));
+    });
+
+    it('should call to get observable', () => {
+      service.getItemSvg('football').subscribe((data: ISvgItem) => {
+        expect(data).toEqual({ svgId: '#1' } as any);
+      });
+
+      expect(service['getMenuItems']).toHaveBeenCalledWith();
+    });
+  });
+
+  it('should call getAllPromotions()', () => {
+    service.getAllPromotions().subscribe();
+
+    expect(httpClient.get).toHaveBeenCalled();
+    expect(httpClient.get).toHaveBeenCalledWith(
+      `${ environment.CMS_ENDPOINT }/${ environment.brand }/promotions`,
+      { observe: 'response', params: {} }
+    );
+    expect(cmsToolsService.processResult).toHaveBeenCalled();
+  });
+
+  describe('@getOffers()', () => {
+    beforeEach(() => {
+      httpClient.get = jasmine.createSpy().and.returnValue(of({
+        body: [{
+          name: 'offer1',
+          offers: []
+        }, {
+          name: 'offer2',
+          offers: []
+        }]
+      }));
+    });
+
+    it('should call getOffers() for mobile', () => {
+      service.getOffers('mobile').subscribe();
+
+      expect(httpClient.get).toHaveBeenCalled();
+      expect(httpClient.get).toHaveBeenCalledWith(
+        `${ environment.CMS_ENDPOINT }/v2/${ environment.brand }/offers/mobile`,
+        { observe: 'response', params: {} }
+      );
+      expect(cmsToolsService.processResult).toHaveBeenCalled();
+    });
+
+    it('should call getOffers() for desktop', () => {
+      service.getOffers('desktop').subscribe();
+
+      expect(httpClient.get).toHaveBeenCalled();
+      expect(httpClient.get).toHaveBeenCalledWith(
+        `${ environment.CMS_ENDPOINT }/v2/${ environment.brand }/offers/desktop`,
+        { observe: 'response', params: {} }
+      );
+      expect(cmsToolsService.processResult).toHaveBeenCalled();
+    });
+  });
+
+  it('should call getWidgets()', fakeAsync(() => {
+    service['getData'] = jasmine.createSpy().and.returnValue(of({}));
+
+    service['widgets'] = null;
+    service.getWidgets().subscribe();
+    tick();
+
+    service['widgets'] = [{}] as any[];
+    service.getWidgets().subscribe();
+    tick();
+
+    expect(service['getData']).toHaveBeenCalledTimes(1);
+    expect(coreToolsService.deepClone).toHaveBeenCalledTimes(1);
+  }));
+
+  describe('@getActiveWidgets()', () => {
+    it('should call getActiveWidgets() and return full list', () => {
+      const sysConfig: ISystemConfig = {
+        Favourites: {
+          displayOnMobile: false,
+          displayOnTablet: true,
+          displayOnDesktop: true
+        }
+      };
+
+      const widgets: IWidget[] = [
+        { directiveName: 'favourites' },
+        { directiveName: 'betslip' },
+        { directiveName: 'testW' }
+      ] as any;
+
+      service.getWidgets = jasmine.createSpy('getWidgets').and.returnValue(of());
+      service.getSystemConfig = jasmine.createSpy('getSystemConfig').and.returnValue(of(sysConfig));
+      service.checkFavouritesWidget = jasmine.createSpy('checkFavouritesWidget').and.returnValue(true);
+
+      service.getActiveWidgets().subscribe((filteredWidgets: IWidget[]) => {
+        expect(service.getWidgets).toHaveBeenCalledTimes(1);
+        expect(service.getSystemConfig).toHaveBeenCalledTimes(1);
+        expect(service.checkFavouritesWidget).toHaveBeenCalledTimes(1);
+        expect(service.checkFavouritesWidget).toHaveBeenCalledWith(sysConfig);
+        expect(filteredWidgets).toEqual(widgets);
+      });
+    });
+
+    it('should call getActiveWidgets() and return without favourites', () => {
+      const widgets: IWidget[] = [
+        { directiveName: 'favourites' },
+        { directiveName: 'betslip' },
+        { directiveName: 'testW' }
+      ] as any;
+
+      service.getWidgets = jasmine.createSpy('getWidgets').and.returnValue(of(widgets));
+      service.getSystemConfig = jasmine.createSpy('getSystemConfig').and.returnValue(of({}));
+      service.checkFavouritesWidget = jasmine.createSpy('checkFavouritesWidget').and.returnValue(false);
+
+      service.getActiveWidgets().subscribe((filteredWidgets: IWidget[]) => {
+        expect(filteredWidgets).toEqual([
+          { directiveName: 'betslip' },
+          { directiveName: 'testW' }
+        ] as any);
+      });
+    });
+  });
+
+  it('should call checkFavouritesWidget() and check favourites widget state', () => {
+    const sysConfig: ISystemConfig = {
+      Favourites: {
+        displayOnMobile: true,
+        displayOnTablet: true,
+        displayOnDesktop: true
+      }
+    };
+
+    service['device'] = {
+      strictViewType: ''
+    } as any;
+
+    expect(service.checkFavouritesWidget(sysConfig)).toBeFalsy();
+
+    service['device'].strictViewType = 'mobile';
+    expect(service.checkFavouritesWidget(sysConfig)).toBeTruthy();
+
+    sysConfig.Favourites.displayOnMobile = false;
+    expect(service.checkFavouritesWidget(sysConfig)).toBeFalsy();
+
+    sysConfig.Favourites = undefined;
+    expect(service.checkFavouritesWidget(sysConfig)).toBeFalsy();
+  });
+
+  it('should call getSeoPage()', () => {
+    const id = '1';
+
+    service.getSeoPage(id).subscribe();
+
+    expect(httpClient.get).toHaveBeenCalled();
+    expect(httpClient.get).toHaveBeenCalledWith(
+      `${ environment.CMS_ENDPOINT }/${ environment.brand }/seo-page/${ id }`,
+      { observe: 'response', params: {} }
+    );
+  });
+
+  it('should call getSportTabs', () => {
+    const id = '1';
+
+    service.getSportTabs(id);
+
+    expect(httpClient.get).toHaveBeenCalled();
+    expect(httpClient.get).toHaveBeenCalledWith(
+      `${environment.CMS_ENDPOINT}/${environment.brand }/sport-tabs/1`,
+      { observe: 'response', params: {} }
+    );
+  });
+
+  it('should call getSportConfig()', () => {
+    const id = 1;
+    deviceService.requestPlatform = 'mobile';
+    service['initialData$'] = undefined;
+
+    service.getSportConfig(id).subscribe(result => {
+      console.log(result);
+      expect(result).toEqual([]);
+    });
+  });
+
+  it('should call getSportConfigs()', () => {
+    const ids = [1, 2];
+    deviceService.requestPlatform = 'mobile';
+    service['initialData$'] = undefined;
+
+    service.getSportConfigs(ids).subscribe(result => {
+      expect(result).toEqual([]);
+    });
+  });
+
+  it('should call getFootball3DBanners()', () => {
+    httpClient.get = jasmine.createSpy().and.returnValue(of({
+      body: {
+        bannersData: [{
+          uriMedium: 'http://uriMedium'
+        }, {
+          uriMedium: 'http://uriMedium'
+        }]
+      }
+    }));
+
+    service.getFootball3DBanners().subscribe();
+
+    expect(httpClient.get).toHaveBeenCalled();
+    expect(httpClient.get).toHaveBeenCalledWith(
+      `${ environment.CMS_ENDPOINT }/${ environment.brand }/3d-football-banners`,
+      { observe: 'response', params: {} }
+    );
+  });
+
+  it('should call getLeagues()', () => {
+    service.getLeagues().subscribe();
+
+    expect(httpClient.get).toHaveBeenCalled();
+    expect(httpClient.get).toHaveBeenCalledWith(
+      `${ environment.CMS_ENDPOINT }/${ environment.brand }/leagues`,
+      { observe: 'response', params: {} }
+    );
+  });
+
+  describe('getNavigationPoints', () => {
+    it('no navigationPoints', fakeAsync(() => {
+      const navMock = initialDataMock;
+      navMock.navigationPoints = undefined;
+      service['initialData$'].next(navMock as any);
+      service.getNavigationPoints().subscribe(result => {
+        expect(result).toEqual([]);
+      });
+      tick();
+    }));
+
+    it('navigationPoints exists', fakeAsync(() => {
+      spyOn(Date, 'now').and.returnValue(1588539600000);
+      const navMock = initialDataMock;
+      navMock.navigationPoints = [{
+        validityPeriodEnd: '2020-07-26T06:00:00Z',
+        validityPeriodStart: '2020-04-03T21:00:00Z'
+      }, {
+        validityPeriodEnd: '2020-07-26T06:00:00Z',
+        validityPeriodStart: '2020-06-03T21:00:00Z'
+      }, {
+        validityPeriodEnd: '2020-04-26T06:00:00Z',
+        validityPeriodStart: '2020-03-03T21:00:00Z'
+      }];
+      service['initialData$'].next(navMock as any);
+
+      service.getNavigationPoints().subscribe(result => {
+        expect(result).toEqual([{
+          validityPeriodEnd: '2020-07-26T06:00:00Z',
+          validityPeriodStart: '2020-04-03T21:00:00Z'
+        }] as any);
+      });
+      tick();
+    }));
+  });
+
+  it('should call getCmsYourCallLeaguesConfig() once', () => {
+    (<any>service.getCmsYourCallLeaguesConfig()).subscribe();
+
+    expect(httpClient.get).toHaveBeenCalledTimes(1);
+    expect(httpClient.get).toHaveBeenCalledWith(
+      `${ environment.CMS_ENDPOINT }/${ environment.brand }/yc-leagues`,
+      { observe: 'response', params: {} }
+    );
+  });
+
+  describe('@getMaintenancePage()', () => {
+    it('(desktop maintenance page)', () => {
+      deviceService.requestPlatform = 'desktop';
+
+      service.getMaintenancePage().subscribe();
+
+      expect(httpClient.get).toHaveBeenCalledWith(
+        `${ environment.CMS_ENDPOINT }/${ environment.brand }/maintenance-page/desktop`,
+        { observe: 'response', params: {} }
+      );
+    });
+  });
+
+  describe('@getData()', () => {
+    it('should call getData() with params', () => {
+      const url = 'test-link',
+        options = { option: 'option' };
+
+      service['getData'](url, options);
+
+      expect(httpClient.get).toHaveBeenCalled();
+      expect(httpClient.get).toHaveBeenCalledWith(
+        `${ environment.CMS_ENDPOINT }/${ environment.brand }/${ url }`,
+        { observe: 'response', params: options }
+      );
+    });
+  });
+
+  describe('@getSurfaceBetsData()', () => {
+    it('should call getSurfaceBetsData() with params', () => {
+      const url = 'edp-surface-bets/1',
+        options = { option: 'option' };
+
+      service['getSurfaceBetsData'](url, options);
+
+      expect(httpClient.get).toHaveBeenCalled();
+      expect(httpClient.get).toHaveBeenCalledWith(
+        `${ environment.SURFACE_BETS_URL }/${ environment.brand }/${ url }`,
+        { observe: 'response', params: options }
+      );
+    });
+  });
+
+  describe('@getV2Data()', () => {
+    it('should call getV2Data() with params', () => {
+      const url = 'offers',
+        options = { option: 'option' };
+
+      service['getV2Data'](url, options);
+
+      expect(httpClient.get).toHaveBeenCalled();
+      expect(httpClient.get).toHaveBeenCalledWith(
+        `${ environment.CMS_ENDPOINT }/v2/${ environment.brand }/${ url }`,
+        { observe: 'response', params: options }
+      );
+    });
+
+    it('should call getV2Data() without params', () => {
+      const url = 'offers';
+
+      service['getV2Data'](url);
+
+      expect(httpClient.get).toHaveBeenCalled();
+      expect(httpClient.get).toHaveBeenCalledWith(
+        `${ environment.CMS_ENDPOINT }/v2/${ environment.brand }/${ url }`,
+        { observe: 'response', params: {} }
+      );
+    });
+  });
+
+  describe('@isGamingEnabled()', () => {
+    it('should call isGamingEnabled() and return true', () => {
+      service.systemConfiguration = {
+        GamingEnabled: {
+          enabledGamingOverlay: false
+        }
+      } as any;
+
+      expect(service['isGamingEnabled']()).toEqual(true);
+    });
+
+    it('should call isGamingEnabled() and return false if no GamingEnabled configuration', () => {
+      service.systemConfiguration = {}  as any;
+
+      expect(service['isGamingEnabled']()).toBe(false);
+    });
+
+    it('should call isGamingEnabled() and return false if gaming enabled', () => {
+      service.systemConfiguration = {
+        GamingEnabled: {
+          enabledGamingOverlay: true
+        }
+      } as any;
+
+      expect(service['isGamingEnabled']()).toBe(false);
+    });
+  });
+
+  describe('@getPromotions()', () => {
+
+    it('should call getPromotions() wit category id', () => {
+      const id = '1';
+
+      service['getPromotions'](id).subscribe();
+
+      expect(httpClient.get).toHaveBeenCalled();
+      expect(httpClient.get).toHaveBeenCalledWith(
+        `${ environment.CMS_ENDPOINT }/${ environment.brand }/promotions/${ id }`,
+        { observe: 'response', params: {} }
+      );
+      expect(cmsToolsService.processResult).toHaveBeenCalled();
+    });
+
+  });
+
+  describe('@filterScheduleTabs()', () => {
+    it('should call filterScheduleTabs() without range and return the same ribbonData', () => {
+      const ribbonData = [{
+          devices: ['s1', 's2'],
+          directiveName: 'featured',
+          id: '1',
+          showTabOn: 'tab',
+          title: 'title',
+          url: 'http://url',
+          visible: true
+        }],
+        result = service['filterScheduleTabs'](ribbonData);
+
+      expect(result).toEqual(ribbonData);
+    });
+
+
+    it('should call filterScheduleTabs() with multiple elements, filter ribbonData and return the same ribbonData', () => {
+      const ribbonData = [{
+          devices: ['s1', 's2'],
+          directiveName: 'featured',
+          id: '1',
+          showTabOn: 'tab',
+          title: 'title',
+          url: 'http://url',
+          visible: true,
+          displayFrom: new Date(new Date().setDate(new Date().getDate() - 1)).toDateString(),
+          displayTo: new Date(new Date().setDate(new Date().getDate() + 1)).toDateString()
+        }, {
+          devices: ['s1', 's2'],
+          directiveName: 'featured',
+          id: '1',
+          showTabOn: 'tab',
+          title: 'title',
+          url: 'http://url',
+          visible: true,
+          displayFrom: new Date(new Date().setDate(new Date().getDate() + 4)).toDateString(),
+          displayTo: new Date(new Date().setDate(new Date().getDate() + 5)).toDateString()
+        }],
+        result = service['filterScheduleTabs'](ribbonData);
+
+      expect(result).toEqual(ribbonData);
+    });
+
+  it('should be in active range', () => {
+    const from = new Date(new Date().setDate(new Date().getDate() - 1)).toDateString(),
+      to = new Date(new Date().setDate(new Date().getDate() + 1)).toDateString(),
+      result = service['isActiveRange'](from, to);
+
+    expect(result).toBeTruthy();
+  });
+
+  it('@parseContent: should replace params in cms static block when params is string', () => {
+    const content = 'Place your 5 team accumulator or upwards on selected matches on the match betting market' +
+      'and get money back as a free bet up to [[\'currency\']][[\'param1\']] if one team lets you down.';
+    const params = '[20]';
+
+    const actualResult = service.parseContent(content, params);
+
+    expect(actualResult).toEqual('Place your 5 team accumulator or upwards on selected matches on the match betting market' +
+      'and get money back as a free bet up to $20 if one team lets you down.');
+  });
+
+  describe('isBogFromCms()', () => {
+    it('should call isBogFromCms()', () => {
+      const sysConfig: ISystemConfig = {
+        BogToggle: {
+          bogToggle: true
+        }
+      };
+      service.getSystemConfig = jasmine.createSpy('getSystemConfig').and.returnValue(of(sysConfig));
+      service.isBogFromCms().subscribe();
+
+      expect(service.getSystemConfig).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('isEDPLogsEnabled()', () => {
+    it('should call isEDPLogsEnabled()', () => {
+      const sysConfig: ISystemConfig = {
+        EDPLogs: {
+          enabled: true
+        }
+      };
+      service.getSystemConfig = jasmine.createSpy('getSystemConfig').and.returnValue(of(sysConfig));
+      service.isEDPLogsEnabled().subscribe();
+
+      expect(service.getSystemConfig).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getFiveASideStaticBlocks', () => {
+    it('should get five-a-side static blocks', () => {
+      service.getFiveASideStaticBlocks().subscribe();
+      expect(httpClient.get).toHaveBeenCalled();
+      expect(httpClient.get).toHaveBeenCalledWith(
+        `${ environment.CMS_ENDPOINT }/${ environment.brand }/5a-side-static-block`,
+        { observe: 'response', params: {} }
+      );
+    });
+  });
+
+
+  describe('getMarketSwitcherFlagValue()', () => {
+    it('should call getMarketSwitcherFlagValue()', () => {
+      const sysConfig: ISystemConfig = {
+        MarketSwitcher: {
+          cricket: true
+        }
+      };
+      service.getFeatureConfig = jasmine.createSpy('getFeatureConfig').and.returnValue(of(sysConfig));
+      service.getMarketSwitcherFlagValue('cricket').subscribe();
+      expect(service.getFeatureConfig).toHaveBeenCalledTimes(1);
+    });
+    it('should return false if MarketSwitcher feature is disabled globally in CMS', fakeAsync(() => {
+      const sysConfig: ISystemConfig = { cricket: true, AllSports: false };
+      service.getFeatureConfig = jasmine.createSpy('getFeatureConfig').and.returnValue(of(sysConfig));
+      service.getMarketSwitcherFlagValue('cricket')
+        .subscribe(marketSwitcherFlag => {
+          expect(marketSwitcherFlag).toBeFalsy();
+        });
+      tick();
+    }));
+  });
+
+  describe('getCmsInitData', () => {
+    beforeEach(() => {
+      service.initialData = undefined;
+      service['initialCmsDataPromise'] = undefined;
+      service['initialData$'] = undefined;
+      service['getData'] = jasmine.createSpy('getData').and.returnValue(of({body: initialDataMock}));
+      service['releaseSubject'] = jasmine.createSpy('releaseSubject');
+    });
+
+    it('should resolve initialCmsDataPromise if present in cmsInitConfigPromise Injected token', fakeAsync(() => {
+      service['windowRef'] = { nativeWindow: {} } as any;
+      service['cmsInitConfigPromise'] = Promise.resolve(initialDataMock);
+      service['getCmsInitData']().subscribe();
+
+      tick();
+
+      expect(service['releaseSubject']).toHaveBeenCalledWith(initialDataMock);
+      expect(service['getData']).not.toHaveBeenCalled();
+    }));
+
+    it('should do call if no Promise', fakeAsync(() => {
+      service['windowRef'] = { nativeWindow: {} } as any;
+
+      service['getCmsInitData']().subscribe();
+
+      tick();
+
+      expect(service['releaseSubject']).toHaveBeenCalledWith(initialDataMock);
+      expect(service['getData']).toHaveBeenCalledWith('initial-data/mobile');
+    }));
+
+    it('should return stored data', () => {
+      service['initialData$'] = new ReplaySubject<any>(1);
+      service['initialData$'].next(initialDataMock);
+
+      service['getCmsInitData']().subscribe((data) => {
+        expect(data).toBe(initialDataMock);
+      });
+      expect(service['releaseSubject']).not.toHaveBeenCalled();
+      expect(service['getData']).not.toHaveBeenCalled();
+    });
+  });
+
+  it('releaseSubject', fakeAsync(() => {
+    service.initialData = undefined;
+    service.systemConfiguration = undefined;
+    service['initialData$'] = new ReplaySubject<any>(1);
+    service['initialData$'].subscribe((data) => {
+      expect(data).toBe(initialDataMock);
+    });
+    service['releaseSubject'](initialDataMock);
+    tick();
+
+    expect(service['initialData$'].closed).toBe(false);
+    expect(service['initialData$'].isStopped).toBe(true);
+    expect(service.initialData).toBe(initialDataMock as any);
+    expect(service.systemConfiguration).toBe(initialDataMock.systemConfiguration as any);
+  }));
+
+  describe('ngOnDestroy' , () => {
+    it('should unsubscribe ReplaySubject', () => {
+      service['initialData$'] = new ReplaySubject<any>(1);
+
+      service.ngOnDestroy();
+
+      expect(service['initialData$'].closed).toBe(true);
+      expect(service['initialData$'].isStopped).toBe(true);
+    });
+
+    it('should not unsubscribe', function () {
+      service['initialData$'] = null;
+
+      service.ngOnDestroy();
+
+      expect(service['initialData$']).toBe(null);
+    });
+  });
+  it('getSportCategoryById', fakeAsync(() => {
+    service['getCmsInitData'] = jasmine.createSpy('getCmsInitData').and.returnValue(of(initialDataMock));
+    cmsToolsService.processResult.and.returnValue(initialDataMock.sportCategories);
+
+    service.getSportCategoryById('1').subscribe((result) => {
+      expect(result).toEqual({ categoryId: 1, sportName: 'category1' } as any);
+    });
+    tick();
+
+    expect(cmsToolsService.processResult).toHaveBeenCalledWith(initialDataMock.sportCategories);
+  }));
+
+  it('getSportCategoryByIds', fakeAsync(() => {
+    service['getCmsInitData'] = jasmine.createSpy('getCmsInitData').and.returnValue(of(initialDataMock));
+    cmsToolsService.processResult.and.returnValue(initialDataMock.sportCategories);
+
+    service.getSportCategoryByIds([5]).subscribe((result) => {
+      expect(result).toEqual([]);
+    });
+    tick();
+
+    expect(cmsToolsService.processResult).toHaveBeenCalledWith(initialDataMock.sportCategories);
+  }));
+
+  it('getSportCategoryById when category id null', fakeAsync(() => {
+    service['getCmsInitData'] = jasmine.createSpy('getCmsInitData').and.returnValue(of(initialDataMock));
+    cmsToolsService.processResult.and.returnValue(
+      [{ categoryId: null, sportName: 'categorynull' },
+        { categoryId: 1, sportName: 'category1' },
+        { categoryId: 3, sportName: 'greyhoundracing' },
+        { imageTitle: 'football', svgId: '#1' }]
+      );
+
+    service.getSportCategoryById('1').subscribe((result) => {
+      expect(result).toEqual({ categoryId: 1, sportName: 'category1' } as any);
+    });
+    tick();
+
+    expect(cmsToolsService.processResult).toHaveBeenCalledWith(initialDataMock.sportCategories);
+  }));
+
+  describe('getSportCategoryByName', () => {
+    beforeEach(() => {
+      service['getCmsInitData'] = jasmine.createSpy('getCmsInitData').and.returnValue(of(initialDataMock));
+      cmsToolsService.processResult.and.returnValue(initialDataMock.sportCategories);
+    });
+
+    it('football', fakeAsync(() => {
+      service.getSportCategoryByName('category1').subscribe(res => {
+        expect(res).toEqual({ categoryId: 1, sportName: 'category1' } as any);
+      });
+      tick();
+
+      expect(cmsToolsService.processResult).toHaveBeenCalledWith(initialDataMock.sportCategories);
+    }));
+
+    it('greyhound', fakeAsync(() => {
+      service.getSportCategoryByName('greyhound').subscribe(res => {
+        expect(res).toEqual({ categoryId: 3, sportName: 'greyhoundracing' } as any);
+      });
+      tick();
+
+      expect(cmsToolsService.processResult).toHaveBeenCalledWith(initialDataMock.sportCategories);
+    }));
+  });
+
+  describe('getSportCategoriesByName', () => {
+    beforeEach(() => {
+      service['getCmsInitData'] = jasmine.createSpy('getCmsInitData').and.returnValue(of(initialDataMock));
+      cmsToolsService.processResult.and.returnValue(initialDataMock.sportCategories);
+    });
+
+    it('football', fakeAsync(() => {
+      service.getSportCategoriesByName(['category1', 'category2']).subscribe(res => {
+        expect(res).toContain({ categoryId: 1, sportName: 'category1' } as any);
+        expect(res).toContain({ categoryId: 2, sportName: 'category2' } as any);
+      });
+      tick();
+
+      expect(cmsToolsService.processResult).toHaveBeenCalledWith(initialDataMock.sportCategories);
+    }));
+
+    it('greyhound', fakeAsync(() => {
+      service.getSportCategoriesByName(['greyhound']).subscribe(res => {
+        expect(res).toContain({ categoryId: 3, sportName: 'greyhoundracing' } as any);
+      });
+      tick();
+
+      expect(cmsToolsService.processResult).toHaveBeenCalledWith(initialDataMock.sportCategories);
+    }));
+  });
+  describe('getHeaderMenu list', () => {
+    it('filters if version matches and few domain matches', () => {
+      const initialData = {
+        systemConfiguration: { GamingEnabled: { iosVersionBlackList: ['6', '7-7.1'], hostMenuBlackList: ['www.ladbrokes.com'] } },
+        sportCategories: [{ 'targetUri': 'www.ladbrokes.com' }, { 'targetUri': 'www.coral.co.uk' }]
+      };
+      service['getCmsInitData'] = jasmine.createSpy('getCmsInitData').and.returnValue(of(initialData));
+      deviceService.isWrapper = true;
+      deviceService.isIos = true;
+      const result = [{ 'targetUri': 'www.coral.co.uk' }];
+      service.getMenuItems('6').subscribe();
+      expect(cmsToolsService.processResult).toHaveBeenCalledWith(result);
+      expect(service['getCmsInitData']).toHaveBeenCalled();
+    });
+    it('doesnt filters if version in cms is null or empty', () => {
+      const initialData = { systemConfiguration: { GamingEnabled: { iosVersionBlackList: '' } }, sportCategories: [] };
+      service['getCmsInitData'] = jasmine.createSpy('getCmsInitData').and.returnValue(of(initialData));
+      deviceService.isWrapper = true;
+      deviceService.isIos = true;
+      service.getMenuItems('6').subscribe();
+      expect(cmsToolsService.processResult).toHaveBeenCalledWith(initialData.sportCategories);
+      expect(service['getCmsInitData']).toHaveBeenCalled();
+    });
+    it('doesnt filters if device is not iOS wrapper', () => {
+      const initialData = { systemConfiguration: { GamingEnabled: { iosVersionBlackList: '' } }, sportCategories: [] };
+      service['getCmsInitData'] = jasmine.createSpy('getCmsInitData').and.returnValue(of(initialData));
+      deviceService.isWrapper = true;
+      deviceService.isIos = false;
+      service.getMenuItems('6').subscribe();
+      expect(cmsToolsService.processResult).toHaveBeenCalledWith(initialData.sportCategories);
+      expect(service['getCmsInitData']).toHaveBeenCalled();
+    });
+  });
+});
