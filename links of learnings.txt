@@ -7,7 +7,61 @@ AAACH0997E – PAN of the lender
  PF No.
  AP/HYD/1285921/000/11694
 
+; https://dash.cloudflare.com/ - 
+; https://bundlephobia.com 
 
+https://www.prepaiddigitalsolutions.com/MyWallet/Detail/135447988
+
+If you have any questions about your card, visit freedomcard.itzcash.com/freedomcard for self-service help or to get in touch via email. You’ll need your serial number to get more information about your card. Please take note of it for future servicing needs.
+
+Serial Number: S00107932038
+This HDFC Bank EbixCash Gift Card is issued to you by HDFC Bank Ltd, a banking company incorporated under the companies Act, 1956.
+
+
+Array.from(document.getElementsByTagName('script')).filter(e => e.outerHTML.indexOf('/alloy.js')>0).length>0
+
+R2dbcEntityTemplate r2dbcEntityTemplate = new R2dbcEntityTemplate(connectionFactory);
+r2dbcEntityTemplate.getDatabaseClient().sql("CALL saveCMSConfigAndGenerateChoiceCombo(:campaign)")
+        .bind("campaign",new ObjectMapper().writeValueAsString(cmsConfig.getCampaignDto()))
+        .fetch().first().subscribe();
+
+
+62934 - 		
+		
+lazy-component.factory.spec.ts 
+lazy-component.loader.spec.ts 
+src/app/favourites/services/favourites.service.spec.ts  
+
+
+docker exec ${container} sh -c \"${command}\"
+docker run --rm ${exportVarsCommand} -v \${workDir}:/opt/workDir -w /opt/workDir \${image} ${paramExec} /bin/sh -c \
+docker build -t ${registry}/${runtimeImage}:${tagId} --build-arg Revision=${tagId} --build-arg Branch=${branch} .
+
+docker tag ${registry}/${runtimeImage}:${tagId} ${registry}/${runtimeImage}:\${IMAGE_TAG}
+docker push ${registry}/${runtimeImage}:\${IMAGE_TAG}
+docker rmi ${registry}/${runtimeImage}:\${IMAGE_TAG}
+
+aws ec2 describe-instances --filters "Name=tag:sName,Values=${awsTagName}"  "Name=tag:Environment,Values=${awsTagInstance}" \
+        "Name=tag:Ecosystem,Values=${awsTagEcosystem}" --region ${awsRegion} --query 'Reservations[].Instances[].InstanceId' | \
+        jq -r .[0]
+aws ec2 get-password-data --instance-id ${instanceId} --priv-launch-key ${deploymentKey} --region ${awsRegion} \
+        --query 'PasswordData' | jq -r .
+		
+	
+		
+'https://search-kibana.eu-west-2.es.amazonaws.com/otf-api-prd0-*/_search' \
+-H "content-type: application/json" \
+-d '{
+"query": {
+"multi_match": {
+"query": "BigQueryPredictionsImpl",
+"fields":["log"]
+} ,
+"range": {
+"Time": {
+"gte": 2020-12-14T11:49:03.000,
+"lte": 2020-12-14T12:17:00.000
+}
 
 chrome.exe --user-data-dir="C://Chrome dev session" --disable-web-security
 
