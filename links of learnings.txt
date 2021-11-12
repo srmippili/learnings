@@ -10,6 +10,42 @@ AAACH0997E – PAN of the lender
 ; https://dash.cloudflare.com/ - 
 ; https://bundlephobia.com 
 
+
+- not on architec aspects
+- understanding design and implementing (spot the wrong one) 
+- dependency design cyclic issues - 3q 10 mins  , 
+
+- already expertise in basics 
+- should have application skill 
+- learning ability
+- 
+BE  L1 (1 hr or 1hr :30 mins) 
+1 - basics  - java 8, spring, RDBMS, noSQL, 
+2 - jenkins -  
+
+- coreJava, java entr, spring 
+java core - design ex question,  (do not directly ask directly, ask new String, String declaration)
+Static variable - nesting scenario. two classes. give a printout --- this will tell . 
+oops - collection - (scenario lo which one you use) 
+threading - 
+exception handling - 
+interface vs abstract - 
+JUnit 
+
+BE  L2 (project work), how many concepts he implemented, at what expertise.  
+hibernate - L2 caching - 
+JUnit scenario - (test scenario -100 times run ayyaka it comes out ) how to write 
+JPA - JDBC vs JPA, controllers, annotations, postConstr, App runners, bean loading, container manage, 
+exception handling, 
+micros -basics , cross data linking mecha, fault tolerance, 
+key consistency issues (only hands on type question). 
+threading - how to wait, how do join, executorService, sync mech ela use chesav 
+
+checked exception - dependent middleware layer, arithmetic exception, how to handle. 
+
+--> elimination criteria - 
+
+
 https://www.prepaiddigitalsolutions.com/MyWallet/Detail/135447988
 
 If you have any questions about your card, visit freedomcard.itzcash.com/freedomcard for self-service help or to get in touch via email. You’ll need your serial number to get more information about your card. Please take note of it for future servicing needs.
